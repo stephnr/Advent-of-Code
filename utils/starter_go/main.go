@@ -1,11 +1,16 @@
 package main
 
-func main() {
-	input_one := ReadInput("1")
-	// input_two := utils.ReadInput("2")
+func part_one() int {
+	// input := utils.ReadInput("1")
+	return 0
+}
 
-	for line := range input_one {
-		// do solution here
-		println(line)
-	}
+func part_two() int {
+	// input := utils.ReadInput("1")
+	return 0
+}
+
+func main() {
+	println(part_one())
+	println(part_two())
 }

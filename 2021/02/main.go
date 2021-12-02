@@ -5,44 +5,44 @@ import (
 	"strings"
 )
 
-func part_one() {
+func part_one() int {
 	x, y := 0, 0
 	input_one := ReadInput("1")
 
 	for line := range input_one {
 		parts := strings.Split(line, " ")
-		direction, val_str := parts[0], parts[1]
+		direction, val_str := parts[0][0], parts[1]
 		val, _ := strconv.Atoi(val_str)
 
 		switch direction {
-		case ("forward"):
+		case ('f'):
 			x += val
-		case ("up"):
+		case ('u'):
 			y -= val
-		case ("down"):
+		case ('d'):
 			y += val
 		}
 	}
 
-	println(x * y)
+	return x * y
 }
 
-func part_two() {
+func part_two() int {
 	x, y, aim := 0, 0, 0
 	input_one := ReadInput("1")
 
 	for line := range input_one {
 		parts := strings.Split(line, " ")
-		direction, val_str := parts[0], parts[1]
+		direction, val_str := parts[0][0], parts[1]
 		val, _ := strconv.Atoi(val_str)
 
 		switch direction {
-		case ("forward"):
+		case ('f'):
 			x += val
 			y += (aim * val)
-		case ("up"):
+		case ('u'):
 			aim -= val
-		case ("down"):
+		case ('d'):
 			aim += val
 		}
 
@@ -51,10 +51,10 @@ func part_two() {
 		}
 	}
 
-	println(x * y)
+	return x * y
 }
 
 func main() {
-	part_one()
-	part_two()
+	println(part_one())
+	println(part_two())
 }
