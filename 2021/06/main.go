@@ -1,36 +1,51 @@
 package main
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 )
 
-func part_one(fishes map[int]int, days int) int {
-	processedFish := make(map[int]int)
+var (
+	// Days -> Fish -> Count
+	mnemonicTable = make(map[string]int)
+)
 
-	if days == 0 {
-		count := 0
+func count_fish_growth(fish, days, count int) int {
+	fish--
+	days--
 
-		for _, val := range fishes {
-			count += val
+	if fish < 0 && days >= 0 {
+		fish = 6
+
+		key := fmt.Sprintf("%d:%d", days, 8)
+
+		if mnemonicTable[key] != 0 {
+			count += mnemonicTable[key]
+		} else {
+			growth := count_fish_growth(8, days, 1)
+			count += growth
+			mnemonicTable[key] = growth
 		}
+
+	}
+
+	if days < 0 {
 		return count
 	}
 
-	// Process a day
+	return count_fish_growth(fish, days, count)
+}
+
+func part_one(fishes map[int]int, days int) int {
+	var count int
+
+	// Process a fish
 	for fish, val := range fishes {
-		fish--
-
-		if fish < 0 {
-			// Gen new fish
-			fish = 6
-			processedFish[8] += val
-		}
-
-		processedFish[fish] += val
+		count += (count_fish_growth(fish, days, 1) * val)
 	}
 
-	return part_one(processedFish, days-1)
+	return count
 }
 
 func ParseInput(line string) (out []int) {
