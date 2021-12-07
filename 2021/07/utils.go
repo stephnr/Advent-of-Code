@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"log"
+	"math/big"
 	"os"
 )
 
@@ -30,7 +31,7 @@ func ReadFile(filepath string) []string {
 }
 
 func ReadInput(num string) <-chan string {
-	lines := []string{"1,2,1,1,1,1,1,1,2,1,3,1,1,1,1,3,1,1,1,5,1,1,1,4,5,1,1,1,3,4,1,1,1,1,1,1,1,5,1,4,1,1,1,1,1,1,1,5,1,3,1,3,1,1,1,5,1,1,1,1,1,5,4,1,2,4,4,1,1,1,1,1,5,1,1,1,1,1,5,4,3,1,1,1,1,1,1,1,5,1,3,1,4,1,1,3,1,1,1,1,1,1,2,1,4,1,3,1,1,1,1,1,5,1,1,1,2,1,1,1,1,2,1,1,1,1,4,1,3,1,1,1,1,1,1,1,1,5,1,1,4,1,1,1,1,1,3,1,3,3,1,1,1,2,1,1,1,1,1,1,1,1,1,5,1,1,1,1,5,1,1,1,1,2,1,1,1,4,1,1,1,2,3,1,1,1,1,1,1,1,1,2,1,1,1,2,3,1,2,1,1,5,4,1,1,2,1,1,1,3,1,4,1,1,1,1,3,1,2,5,1,1,1,5,1,1,1,1,1,4,1,1,4,1,1,1,2,2,2,2,4,3,1,1,3,1,1,1,1,1,1,2,2,1,1,4,2,1,4,1,1,1,1,1,5,1,1,4,2,1,1,2,5,4,2,1,1,1,1,4,2,3,5,2,1,5,1,3,1,1,5,1,1,4,5,1,1,1,1,4"}
+	lines := ReadFile(num)
 
 	// Convert it to a channel
 	out := make(chan string, len(lines))
@@ -41,4 +42,39 @@ func ReadInput(num string) <-chan string {
 	}
 
 	return out
+}
+
+func MinMax(arr []int) (min, max int) {
+	min = arr[0]
+	max = arr[0]
+
+	for _, el := range arr {
+		if el < min {
+			min = el
+		}
+
+		if el > max {
+			max = el
+		}
+	}
+
+	return min, max
+}
+
+func MinOfBigIntMap(m map[int]*big.Int) (key int, val *big.Int) {
+	// Set a dummy start
+	for k, _ := range m {
+		val = m[k]
+		break
+	}
+
+	for k, v := range m {
+		switch v.Cmp(val) {
+		case -1:
+			key = k
+			val = v
+		}
+	}
+
+	return key, val
 }

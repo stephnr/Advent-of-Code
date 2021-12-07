@@ -10,6 +10,6 @@ func BenchmarkPartOne(b *testing.B) {
 
 func BenchmarkPartTwo(b *testing.B) {
 	for n := 0; n <= b.N; n++ {
-		part_two()
+		// part_two()
 	}
 }
