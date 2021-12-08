@@ -1,16 +1,16 @@
 package main
 
-func part_one() int {
+func part_one(input []string) int {
 	return 0
 }
 
-func ParseCrabs(input string) []string {
+func ParseInput(input string) (out []string) {
 	// return strings.Split(input, ",")
+	return out
 }
 
 func main() {
-	// lines := ReadFile("./inputs/1")
-
-	println(part_one())
+	input := ParseInput(ReadFile("./inputs/1"))
+	println(part_one(input))
 	// println(part_two())
 }
