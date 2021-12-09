@@ -10,7 +10,7 @@ func ParseInput(input string) (out []string) {
 }
 
 func main() {
-	input := ParseInput(ReadFile("./inputs/1"))
+	input := ParseInput(ReadFile("./inputs/1")[0])
 	println(part_one(input))
 	// println(part_two())
 }
