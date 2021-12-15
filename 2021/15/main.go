@@ -44,7 +44,7 @@ func CopyPos(p []int, value int) []int {
 	return tmp
 }
 
-func part_one(grid [][]Path) int {
+func solve(grid [][]Path, partTwo bool) int {
 	unvisited := make(map[string]*Path)
 	unvisited[grid[0][0].Key()] = &grid[0][0]
 
@@ -52,6 +52,10 @@ func part_one(grid [][]Path) int {
 
 	for {
 		if unvisited[finalKey] != nil {
+			if partTwo {
+				return CountPath(unvisited[finalKey].BestPath) - unvisited[finalKey].BestPath[0]
+			}
+
 			return CountPath(unvisited[finalKey].BestPath)
 		}
 
@@ -89,7 +93,7 @@ func part_one(grid [][]Path) int {
 	}
 }
 
-func ParseInput(input []string) (grid [][]Path) {
+func ParseInput(input []string, scale int) (grid [][]Path) {
 	grid = make([][]Path, len(input))
 
 	for i, line := range input {
@@ -105,14 +109,78 @@ func ParseInput(input []string) (grid [][]Path) {
 			}
 		}
 
+		lineLength := len(newLine)
+
+		// Repeat the line x scale
+		for a := 1; a < scale; a++ {
+			for aa := 0; aa < lineLength; aa++ {
+				val := (newLine[aa].Value + a) % 9
+
+				if val == 0 {
+					val = 9
+				}
+
+				newLine = append(newLine, Path{
+					X:        i,
+					Y:        len(newLine),
+					Value:    val,
+					BestPath: make([]int, 0),
+				})
+			}
+		}
+
 		grid[i] = newLine
+	}
+
+	// Scale?
+	if scale > 1 {
+		rowHeight := len(grid)
+
+		// Each row
+		for a := 1; a < scale; a++ {
+			gridHeight := len(grid)
+
+			for i := gridHeight - (rowHeight * a); i < rowHeight; i++ {
+				row := grid[i]
+				newLine := make([]Path, 0)
+
+				for j := 0; j < len(row); j++ {
+					val := (row[j].Value + a) % 9
+
+					if val == 0 {
+						val = 9
+					}
+
+					newLine = append(newLine, Path{
+						X:        len(grid),
+						Y:        j,
+						Value:    val,
+						BestPath: make([]int, 0),
+					})
+				}
+
+				grid = append(grid, newLine)
+			}
+		}
 	}
 
 	return grid
 }
 
+func PrintGrid(grid [][]Path) {
+	for _, row := range grid {
+		for _, path := range row {
+			fmt.Printf("%d", path.Value)
+		}
+
+		fmt.Printf("\n")
+	}
+}
+
 func main() {
-	grid := ParseInput(ReadFile("./inputs/1"))
-	println(part_one(grid))
-	// println(part_two())
+	grid1 := ParseInput(ReadFile("./inputs/1"), 1)
+	grid5 := ParseInput(ReadFile("./inputs/1"), 5)
+
+	println(solve(grid1, false))
+	println(solve(grid5, true))
 }
