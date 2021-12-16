@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 )
@@ -18,10 +17,6 @@ type Literal struct {
 	Value      int64
 }
 
-func part_one(input []string) int {
-	return 0
-}
-
 func ConvertToBits(line string) (bits string) {
 	charTable := "ABCDEF"
 
@@ -36,7 +31,7 @@ func ConvertToBits(line string) (bits string) {
 		bitArr := strconv.FormatInt(int64(val), 2)
 
 		if len(bitArr) < 4 {
-			bitArr = "000" + bitArr
+			bitArr = LeftPad(bitArr, 4-len(bitArr))
 		}
 
 		bits += bitArr[len(bitArr)-4:]
@@ -55,6 +50,10 @@ func LeftPad(bits string, n int) string {
 
 // TrimBits takes n bits from the left and returns the selection
 func TrimBits(bits *string, n int) string {
+	if len(*bits) < n {
+		return ""
+	}
+
 	peek := (*bits)[0:n]
 	*bits = (*bits)[n:]
 	return peek
@@ -65,62 +64,57 @@ func ConvertBitsToDecimal(bits string) int64 {
 	return val
 }
 
-func ParseInput(input string) (out []string) {
-	bits := ConvertToBits(input)
-	literals := make([]Literal, 0)
-	// operators := make([]Operator, 0)
+func GetBitIDs(bits *string) (version, lengthTypeID int64) {
+	version = ConvertBitsToDecimal(TrimBits(bits, 3))
+	lengthTypeID = ConvertBitsToDecimal(TrimBits(bits, 3))
 
-	println(bits)
+	return version, lengthTypeID
+}
 
-	for len(bits) > 0 {
-		peekVersion := "0" + TrimBits(&bits, 3)
+func ParseBits(bits *string) (versionSum int64) {
+	if len(*bits) == 0 {
+		return versionSum
+	}
 
-		if ConvertBitsToDecimal(peekVersion) == 0 {
-			// End
-			break
+	version, lengthTypeID := GetBitIDs(bits)
+	versionSum += version
+
+	if lengthTypeID == 4 {
+		// No action
+		num := ""
+
+	Scan:
+		for {
+			checkBits := TrimBits(bits, 5)
+			num += checkBits[1:]
+
+			if checkBits[0] == '0' {
+				break Scan
+			}
 		}
 
-		peekTypeID := "0" + TrimBits(&bits, 3)
+		return versionSum
+	}
 
-		packetVersion := ConvertBitsToDecimal(peekVersion)
-		packetTypeID := ConvertBitsToDecimal(peekTypeID)
+	opType := ConvertBitsToDecimal(TrimBits(bits, 1))
 
-		if packetTypeID == 4 {
-			num := ""
+	if opType == 0 {
+		TrimBits(bits, 15)
+		versionSum += ParseBits(bits)
+	} else if opType == 1 {
+		iter := ConvertBitsToDecimal(TrimBits(bits, 11))
 
-		PacketLoop:
-			for {
-				peekVal := TrimBits(&bits, 5)
-				num += peekVal[1:]
-
-				if peekVal[0] == '0' {
-					// This was the last value
-					break PacketLoop
-				}
-			}
-
-			val := ConvertBitsToDecimal(num)
-
-			// Store literal
-			literals = append(literals, Literal{
-				Version:    packetVersion,
-				LengthType: packetTypeID,
-				Value:      val,
-			})
-
-			fmt.Printf("%+v\n", literals[len(literals)-1])
+		for iter > 0 {
+			versionSum += ParseBits(bits)
+			iter--
 		}
 	}
 
-	// First 3 bits = Version
-	// Next 3 bits = Type ID
-	// -> 4 - LITERAL VALUE
-
-	return out
+	versionSum += ParseBits(bits)
+	return versionSum
 }
 
 func main() {
-	input := ParseInput(ReadFile("./inputs/1")[0])
-	println(part_one(input))
-	// println(part_two())
+	bits := ConvertToBits(ReadFile("./inputs/1")[0])
+	println(ParseBits(&bits))
 }
