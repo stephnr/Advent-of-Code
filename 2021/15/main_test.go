@@ -3,14 +3,15 @@ package main
 import "testing"
 
 func BenchmarkPartOne(b *testing.B) {
-	grid := ParseInput(ReadFile("./inputs/1"))
+	grid := ParseInput(ReadFile("./inputs/1"), 1)
 	for n := 0; n <= b.N; n++ {
-		part_one(grid)
+		solve(grid, false)
 	}
 }
 
 func BenchmarkPartTwo(b *testing.B) {
+	grid := ParseInput(ReadFile("./inputs/1"), 5)
 	for n := 0; n <= b.N; n++ {
-		// part_two()
+		solve(grid, true)
 	}
 }
