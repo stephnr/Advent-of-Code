@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"math"
 	"strconv"
 	"strings"
 )
@@ -71,9 +73,9 @@ func GetBitIDs(bits *string) (version, lengthTypeID int64) {
 	return version, lengthTypeID
 }
 
-func ParseBits(bits *string) (versionSum int64) {
+func ParseBits(bits *string, resTable []int64) (versionSum int64, resOut []int64) {
 	if len(*bits) == 0 {
-		return versionSum
+		return versionSum, resTable
 	}
 
 	version, lengthTypeID := GetBitIDs(bits)
@@ -93,28 +95,117 @@ func ParseBits(bits *string) (versionSum int64) {
 			}
 		}
 
-		return versionSum
+		resTable = append(resTable, ConvertBitsToDecimal(num))
+
+		return versionSum, resTable
 	}
 
 	opType := ConvertBitsToDecimal(TrimBits(bits, 1))
 
 	if opType == 0 {
-		TrimBits(bits, 15)
-		versionSum += ParseBits(bits)
+		packetsLength := ConvertBitsToDecimal(TrimBits(bits, 15))
+		pre := len(*bits)
+
+		for int64(pre-len(*bits)) < packetsLength {
+			v, r := ParseBits(bits, resTable)
+			versionSum += v
+			resTable = r
+		}
+
+		resTable = ComputePartTwo(lengthTypeID, resTable)
 	} else if opType == 1 {
 		iter := ConvertBitsToDecimal(TrimBits(bits, 11))
 
 		for iter > 0 {
-			versionSum += ParseBits(bits)
+			v, r := ParseBits(bits, resTable)
+			versionSum += v
+			resTable = r
 			iter--
+		}
+
+		resTable = ComputePartTwo(lengthTypeID, resTable)
+	}
+
+	for len(*bits) > 0 {
+		v, r := ParseBits(bits, resTable)
+		versionSum += v
+		resTable = r
+	}
+
+	return versionSum, resTable
+}
+
+func ComputePartTwo(lengthTypeID int64, resTable []int64) []int64 {
+	// Handle Length Type ID
+	switch lengthTypeID {
+	case 0:
+		// Sum
+		res := int64(0)
+		for _, v := range resTable {
+			res += v
+		}
+
+		resTable = []int64{res}
+	case 1:
+		// Product
+		res := int64(1)
+		for _, v := range resTable {
+			res *= v
+		}
+
+		resTable = []int64{res}
+	case 2:
+		// Minimum
+		if len(resTable) == 1 {
+			break
+		}
+
+		res := resTable[1]
+		for _, v := range resTable[1:] {
+			res = int64(math.Min(float64(res), float64(v)))
+		}
+
+		resTable = []int64{res}
+	case 3:
+		// Maximum
+		if len(resTable) == 1 {
+			break
+		}
+
+		res := resTable[1]
+		for _, v := range resTable[1:] {
+			res = int64(math.Max(float64(res), float64(v)))
+		}
+
+		resTable = []int64{res}
+	case 5:
+		// Greater Than = 1 if (0 > 1) else 0
+		if resTable[0] > resTable[1] {
+			resTable = []int64{1}
+		} else {
+			resTable = []int64{0}
+		}
+	case 6:
+		// Less Than = 1 if (0 < 1) else 0
+		if resTable[0] < resTable[1] {
+			resTable = []int64{1}
+		} else {
+			resTable = []int64{0}
+		}
+	case 7:
+		// Equals = 1 if (0 == 1) else 0
+		if resTable[0] == resTable[1] {
+			resTable = []int64{1}
+		} else {
+			resTable = []int64{0}
 		}
 	}
 
-	versionSum += ParseBits(bits)
-	return versionSum
+	return resTable
 }
 
 func main() {
 	bits := ConvertToBits(ReadFile("./inputs/1")[0])
-	println(ParseBits(&bits))
+	p1, p2 := ParseBits(&bits, make([]int64, 0))
+	fmt.Printf("%d , %+v\n", p1, p2)
 }
