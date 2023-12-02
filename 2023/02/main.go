@@ -5,6 +5,7 @@ import (
 	"math"
 	"regexp"
 	"strconv"
+	"strings"
 )
 
 //go:embed input.txt
@@ -53,6 +54,10 @@ func partTwo(rows []string) float64 {
 	}
 
 	return result
+}
+
+func parseRows(in string) []string {
+	return strings.Split(strings.ReplaceAll(in, "\r\n", "\n"), "\n")
 }
 
 func main() {
