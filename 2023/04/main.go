@@ -2,6 +2,7 @@ package main
 
 import (
 	_ "embed"
+	"fmt"
 	"math"
 	"regexp"
 	"strconv"
@@ -10,6 +11,12 @@ import (
 
 //go:embed input.txt
 var input string
+
+// ID => Score
+var scratchTable = []float64{}
+
+// Maps Part 2 Scratchcard ID to final total
+var deepCounter = map[float64]float64{}
 
 func partOne(rows []string) float64 {
 	result := float64(0)
@@ -35,6 +42,7 @@ func partOne(rows []string) float64 {
 			}
 
 			val, _ := strconv.Atoi(num)
+
 			if winningNumbers[val] {
 				// Prevent double counting
 				winningNumbers[val] = false
@@ -46,14 +54,35 @@ func partOne(rows []string) float64 {
 		if matches > 0 {
 			result += math.Pow(2, matches-1)
 		}
+
+		// Track scratchcard win amount
+		scratchTable = append(scratchTable, math.Floor(math.Pow(2, matches-1)))
 	}
 
 	return result
 }
 
-func partTwo(rows []string) int {
-	var result int
+func partTwo(rows []string) float64 {
+	var result float64
+
+	for i := 0; i < len(scratchTable)-1; i++ {
+		result += countCards(float64(i))
+	}
+
 	return result
+}
+
+func countCards(idx float64) float64 {
+	res := float64(1)
+	score := scratchTable[int(idx)]
+
+	if score > 0 {
+		for i := float64(idx + 1); i <= float64(idx)+score && i < float64(len(scratchTable)); i++ {
+			res += countCards(i)
+		}
+	}
+
+	return res
 }
 
 func parseRows(in string) []string {
@@ -62,5 +91,6 @@ func parseRows(in string) []string {
 
 func main() {
 	println(strconv.Itoa(int(partOne(parseRows(input)))))
-	println(partTwo(parseRows(input)))
+	println(fmt.Sprintf("%f\n", partTwo(parseRows(input))))
+	println()
 }
