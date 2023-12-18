@@ -1,0 +1,7 @@
+Part 2:
+
+251381091 => Too High
+251380907 => Too High
+251371685 => Too High
+
+250929266 => Too Low
