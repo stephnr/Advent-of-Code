@@ -16,7 +16,6 @@ func run(filepath string, partTwo bool) int {
 
 	grid := [][]string{}
 	antennas := map[string][]Coordinates{}
-	antinodes := map[string][]Coordinates{}
 
 	for line := range lines {
 		grid = append(grid, strings.Split(line, ""))
@@ -41,15 +40,20 @@ func run(filepath string, partTwo bool) int {
 					continue
 				}
 
-				grid, antinodes = checkAntenna(symbol, antenna[i], antenna[j], grid, antinodes, partTwo)
+				grid = checkAntenna(symbol, antenna[i], antenna[j], grid, partTwo)
 			}
 		}
 	}
 
 	fmt.Printf("%+v\n", antennas)
 
-	for _, v := range antinodes {
-		sum += len(v)
+	// Count antinodes
+	for _, row := range grid {
+		for _, col := range row {
+			if col == "#" {
+				sum++
+			}
+		}
 	}
 
 	if partTwo {
@@ -62,14 +66,14 @@ func run(filepath string, partTwo bool) int {
 }
 
 // Checks two antennas & updates the grid map
-func checkAntenna(symbol string, a Coordinates, b Coordinates, grid [][]string, antinodes map[string][]Coordinates, partTwo bool) ([][]string, map[string][]Coordinates) {
+func checkAntenna(symbol string, a Coordinates, b Coordinates, grid [][]string, partTwo bool) [][]string {
 	breakpoint := 1
 
 	xD := a.X - b.X
 	yD := a.Y - b.Y
 
 	if xD == 0 && yD == 0 {
-		return grid, antinodes
+		return grid
 	}
 
 	if partTwo {
@@ -93,10 +97,6 @@ func checkAntenna(symbol string, a Coordinates, b Coordinates, grid [][]string, 
 			}
 
 			printGrid(grid)
-			antinodes[symbol] = append(antinodes[symbol], Coordinates{
-				X: a.X - (i * xD),
-				Y: a.Y - (i * yD),
-			})
 		}
 	}
 
@@ -115,10 +115,6 @@ func checkAntenna(symbol string, a Coordinates, b Coordinates, grid [][]string, 
 			}
 
 			printGrid(grid)
-			antinodes[symbol] = append(antinodes[symbol], Coordinates{
-				X: a.X + (i * xD),
-				Y: a.Y + (i * yD),
-			})
 		}
 	}
 
@@ -139,10 +135,6 @@ func checkAntenna(symbol string, a Coordinates, b Coordinates, grid [][]string, 
 			}
 
 			printGrid(grid)
-			antinodes[symbol] = append(antinodes[symbol], Coordinates{
-				X: b.X - (i * xD),
-				Y: b.Y - (i * yD),
-			})
 		}
 	}
 
@@ -161,10 +153,6 @@ func checkAntenna(symbol string, a Coordinates, b Coordinates, grid [][]string, 
 			}
 
 			printGrid(grid)
-			antinodes[symbol] = append(antinodes[symbol], Coordinates{
-				X: b.X + (i * xD),
-				Y: b.Y + (i * yD),
-			})
 		}
 	}
 
@@ -174,7 +162,7 @@ func checkAntenna(symbol string, a Coordinates, b Coordinates, grid [][]string, 
 
 	fmt.Printf("%+v %+v %+v\n", symbol, xD, yD)
 
-	return grid, antinodes
+	return grid
 }
 
 func printGrid(grid [][]string) {
@@ -187,5 +175,5 @@ func printGrid(grid [][]string) {
 
 func main() {
 	// println(run("./inputs/0.txt", false))
-	println(run("./inputs/0.txt", true))
+	println(run("./inputs/1.txt", true))
 }
