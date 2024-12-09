@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"fmt"
 	"slices"
 	"strconv"
 	"strings"
@@ -14,9 +13,8 @@ type Disk struct {
 	IsFree bool
 }
 
-func run(filepath string) int {
+func run(filepath string, first bool) int {
 	lines := ReadInput(filepath)
-	sum := 0
 
 	diskCount := -1
 	diskmap := []Disk{}
@@ -40,6 +38,76 @@ func run(filepath string) int {
 		}
 	}
 
+	if first {
+		return partOne(diskmap)
+	}
+
+	return partTwo(diskmap)
+}
+
+func partTwo(diskmap []Disk) int {
+	sum := 0
+
+Reorganize:
+	diskMapStringBefore := getDiskMap(diskmap)
+	for i := len(diskmap) - 1; i >= 0; i-- {
+		if diskmap[i].IsFree {
+			continue
+		}
+
+		// Find a space to fit the record from left-most
+		for j := 0; j < len(diskmap)-1; j++ {
+			if diskmap[j].IsFree && diskmap[j].Length >= diskmap[i].Length && j < i {
+				// Found it! - move the file
+				diskmap[j].ID = diskmap[i].ID
+				diskmap[j].IsFree = false
+
+				// Cleanup the old space we had
+				diskmap[i].ID = -1
+				diskmap[i].IsFree = true
+
+				// Check if we need to seperate out unused space
+				if diskmap[j].Length > diskmap[i].Length {
+					newEmptyDisk := Disk{
+						ID:     -1,
+						Length: diskmap[j].Length - diskmap[i].Length,
+						IsFree: true,
+					}
+					// Reduce it
+					diskmap[j].Length = diskmap[i].Length
+					// Insert a new record
+					diskmap = slices.Insert(diskmap, j+1, newEmptyDisk)
+				}
+				break
+			}
+		}
+	}
+
+	diskMapStringAfter := getDiskMap(diskmap)
+
+	if diskMapStringBefore != diskMapStringAfter {
+		// Repeat until we have no more records to arrange
+		goto Reorganize
+	}
+
+	id := 0
+	for _, disk := range diskmap {
+		if disk.IsFree {
+			id += disk.Length
+			continue
+		}
+
+		for i := 0; i < disk.Length; i++ {
+			sum += (id * disk.ID)
+			id++
+		}
+	}
+
+	return sum
+}
+
+func partOne(diskmap []Disk) int {
+	sum := 0
 	cont := false
 
 	for {
@@ -51,9 +119,6 @@ func run(filepath string) int {
 	}
 
 	// Calculate the checksum
-	diskString := getDiskMap(diskmap)
-	fmt.Printf("%+v\n", diskString)
-
 	id := 0
 	for _, disk := range diskmap {
 		if disk.IsFree {
@@ -150,7 +215,9 @@ func getDiskMap(diskmap []Disk) string {
 // 15707113247944 = too high
 // 12900781798635 = X
 // 12844947102917 = X
+// 6349492251099 = CORRECT! - trick is to "think backwards" for assignment positions
 
 func main() {
-	println(run("./inputs/1.txt"))
+	println(run("./inputs/1.txt", true))
+	println(run("./inputs/1.txt", false))
 }
