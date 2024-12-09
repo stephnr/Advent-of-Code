@@ -10,7 +10,7 @@ type Coordinates struct {
 	Y int
 }
 
-func run(filepath string) int {
+func run(filepath string, partTwo bool) int {
 	lines := ReadInput(filepath)
 	row, sum := 0, 0
 
@@ -41,7 +41,7 @@ func run(filepath string) int {
 					continue
 				}
 
-				grid, antinodes = checkAntenna(symbol, antenna[i], antenna[j], grid, antinodes)
+				grid, antinodes = checkAntenna(symbol, antenna[i], antenna[j], grid, antinodes, partTwo)
 			}
 		}
 	}
@@ -52,11 +52,19 @@ func run(filepath string) int {
 		sum += len(v)
 	}
 
+	if partTwo {
+		for _, a := range antennas {
+			sum += len(a)
+		}
+	}
+
 	return sum
 }
 
 // Checks two antennas & updates the grid map
-func checkAntenna(symbol string, a Coordinates, b Coordinates, grid [][]string, antinodes map[string][]Coordinates) ([][]string, map[string][]Coordinates) {
+func checkAntenna(symbol string, a Coordinates, b Coordinates, grid [][]string, antinodes map[string][]Coordinates, partTwo bool) ([][]string, map[string][]Coordinates) {
+	breakpoint := 1
+
 	xD := a.X - b.X
 	yD := a.Y - b.Y
 
@@ -64,10 +72,14 @@ func checkAntenna(symbol string, a Coordinates, b Coordinates, grid [][]string, 
 		return grid, antinodes
 	}
 
+	if partTwo {
+		breakpoint = len(grid)
+	}
+
 	//------------
 
 	// Left check
-	for i := 1; i <= 1; i++ {
+	for i := 1; i <= breakpoint; i++ {
 		if (a.X-(i*xD) < 0 || a.Y-(i*yD) < 0) ||
 			(a.X-(i*xD) > len(grid)-1 || a.Y-(i*yD) > len(grid[0])-1) {
 			break
@@ -76,7 +88,10 @@ func checkAntenna(symbol string, a Coordinates, b Coordinates, grid [][]string, 
 		pos := grid[a.X-(i*xD)][a.Y-(i*yD)]
 
 		if pos != symbol && pos != "#" {
-			grid[a.X-(i*xD)][a.Y-(i*yD)] = "#"
+			if pos == "." {
+				grid[a.X-(i*xD)][a.Y-(i*yD)] = "#"
+			}
+
 			printGrid(grid)
 			antinodes[symbol] = append(antinodes[symbol], Coordinates{
 				X: a.X - (i * xD),
@@ -86,7 +101,7 @@ func checkAntenna(symbol string, a Coordinates, b Coordinates, grid [][]string, 
 	}
 
 	// Right check
-	for i := 1; i <= 1; i++ {
+	for i := 1; i <= breakpoint; i++ {
 		if (a.X+(i*xD) < 0 || a.Y+(i*yD) < 0) ||
 			(a.X+(i*xD) > len(grid)-1 || a.Y+(i*yD) > len(grid[0])-1) {
 			break
@@ -95,7 +110,10 @@ func checkAntenna(symbol string, a Coordinates, b Coordinates, grid [][]string, 
 		pos := grid[a.X+(i*xD)][a.Y+(i*yD)]
 
 		if pos != symbol && pos != "#" {
-			grid[a.X+(i*xD)][a.Y+(i*yD)] = "#"
+			if pos == "." {
+				grid[a.X+(i*xD)][a.Y+(i*yD)] = "#"
+			}
+
 			printGrid(grid)
 			antinodes[symbol] = append(antinodes[symbol], Coordinates{
 				X: a.X + (i * xD),
@@ -107,7 +125,7 @@ func checkAntenna(symbol string, a Coordinates, b Coordinates, grid [][]string, 
 	//------------
 
 	// Left check
-	for i := 1; i <= 1; i++ {
+	for i := 1; i <= breakpoint; i++ {
 		if (b.X-(i*xD) < 0 || b.Y-(i*yD) < 0) ||
 			(b.X-(i*xD) > len(grid)-1 || b.Y-(i*yD) > len(grid[0])-1) {
 			break
@@ -116,7 +134,10 @@ func checkAntenna(symbol string, a Coordinates, b Coordinates, grid [][]string, 
 		pos := grid[b.X-(i*xD)][b.Y-(i*yD)]
 
 		if pos != symbol && pos != "#" {
-			grid[b.X-(i*xD)][b.Y-(i*yD)] = "#"
+			if pos == "." {
+				grid[b.X-(i*xD)][b.Y-(i*yD)] = "#"
+			}
+
 			printGrid(grid)
 			antinodes[symbol] = append(antinodes[symbol], Coordinates{
 				X: b.X - (i * xD),
@@ -126,7 +147,7 @@ func checkAntenna(symbol string, a Coordinates, b Coordinates, grid [][]string, 
 	}
 
 	// Right check
-	for i := 1; i <= 1; i++ {
+	for i := 1; i <= breakpoint; i++ {
 		if (b.X+(i*xD) < 0 || b.Y+(i*yD) < 0) ||
 			(b.X+(i*xD) > len(grid)-1 || b.Y+(i*yD) > len(grid[0])-1) {
 			break
@@ -135,7 +156,10 @@ func checkAntenna(symbol string, a Coordinates, b Coordinates, grid [][]string, 
 		pos := grid[b.X+(i*xD)][b.Y+(i*yD)]
 
 		if pos != symbol && pos != "#" {
-			grid[b.X+(i*xD)][b.Y+(i*yD)] = "#"
+			if pos == "." {
+				grid[b.X+(i*xD)][b.Y+(i*yD)] = "#"
+			}
+
 			printGrid(grid)
 			antinodes[symbol] = append(antinodes[symbol], Coordinates{
 				X: b.X + (i * xD),
@@ -162,5 +186,6 @@ func printGrid(grid [][]string) {
 }
 
 func main() {
-	println(run("./inputs/1.txt"))
+	// println(run("./inputs/0.txt", false))
+	println(run("./inputs/0.txt", true))
 }
