@@ -144,6 +144,13 @@ func getDiskMap(diskmap []Disk) string {
 	return s.String()
 }
 
+// Part Two: FAILED
+// 15679713401325 = too high
+// 15679713400223 = too high
+// 15707113247944 = too high
+// 12900781798635 = X
+// 12844947102917 = X
+
 func main() {
 	println(run("./inputs/1.txt"))
 }
