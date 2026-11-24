@@ -4,21 +4,32 @@ package main
 
 func run(filepath string, partTwo bool) int {
 	lines := ReadInput(filepath)
-	sum := 0
+	floor, pos := 0, 0
 
 	for line := range lines {
-		_ = line
+		for _, ch := range line {
+			pos++
+
+			switch ch {
+			case '(':
+				floor++
+			case ')':
+				floor--
+			}
+
+			// Part Two: first position that enters the basement
+			if partTwo && floor == -1 {
+				return pos
+			}
+		}
 	}
 
-	if partTwo {
-		return sum
-	}
-
-	return sum
+	return floor
 }
 
 func main() {
 	println(run("./inputs/0.txt", false))
-	// println(run("./inputs/1.txt", false))
-	// println(run("./inputs/1.txt", true))
+	println(run("./inputs/0.txt", true))
+	println(run("./inputs/1.txt", false))
+	println(run("./inputs/1.txt", true))
 }
