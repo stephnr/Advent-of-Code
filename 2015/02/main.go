@@ -13,10 +13,6 @@ func run(filepath string, partTwo bool) int {
 	sum := 0
 
 	for line := range lines {
-		if line == "" {
-			continue
-		}
-
 		dims := []int{}
 		for _, s := range strings.Split(line, "x") {
 			n, _ := strconv.Atoi(s)
